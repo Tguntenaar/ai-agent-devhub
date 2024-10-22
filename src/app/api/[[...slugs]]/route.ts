@@ -1,126 +1,402 @@
 import { swagger } from "@elysiajs/swagger";
-import {
-  EstimateSwapView,
-  Transaction,
-  WRAP_NEAR_CONTRACT_ID,
-  estimateSwap,
-  fetchAllPools,
-  ftGetTokenMetadata,
-  getExpectedOutputFromSwapTodos,
-  getStablePools,
-  instantSwap,
-  nearDepositTransaction,
-  nearWithdrawTransaction,
-  percentLess,
-  scientificNotationToString,
-  separateRoutes,
-} from "@ref-finance/ref-sdk";
-import Big from "big.js";
 import { Elysia } from "elysia";
 
-import { searchToken } from "@/utils/search-token";
+
+interface FunctionCallAction {
+  type: "FunctionCall";
+  params: {
+    methodName: string;
+    args: object;
+    gas: string;
+    deposit: string;
+  };
+}
 
 const app = new Elysia({ prefix: "/api", aot: false })
   .use(swagger())
-  .get("/:token", async ({ params: { token } }) => {
-    const tokenMatch = searchToken(token)[0];
-    if (!tokenMatch) {
+  
+  // POST /add_member
+  .post("/add_member", async ({ body }) => {
+    const { member, metadata } = body as { member: any; metadata: any };
+
+    if (!member || !metadata) {
       return {
-        error: `Token ${token} not found`,
-      };
-    }
-    const tokenMetadata = await ftGetTokenMetadata(tokenMatch.id);
-    if (!tokenMetadata) {
-      return {
-        error: `Metadata for token ${token} not found`,
+        status: 400,
+        body: { error: "Invalid input" },
       };
     }
 
-    return {
-      ...tokenMetadata,
-      icon: "",
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "add_member",
+        args: { member, metadata },
+        gas: "30000000000000",
+        deposit: "1",
+      },
     };
+
+    return functionCall;
   })
-  .get("/swap/:tokenIn/:tokenOut/:quantity", async ({ params: { tokenIn, tokenOut, quantity }, headers }) => {
-    const mbMetadata = JSON.parse(headers["mb-metadata"] || "{}");
-    const accountId = mbMetadata?.accountData?.accountId || "near";
 
-    const { ratedPools, unRatedPools, simplePools } = await fetchAllPools();
+  // POST /add_proposal
+  .post("/add_proposal", async ({ body }) => {
+    const { body: proposalBody, labels, accepted_terms_and_conditions_version } = body as {
+      body: any;
+      labels: string[];
+      accepted_terms_and_conditions_version?: number;
+    };
 
-    const stablePools = unRatedPools.concat(ratedPools);
-
-    const stablePoolsDetail = await getStablePools(stablePools);
-
-    const tokenInMatch = searchToken(tokenIn)[0];
-    const tokenOutMatch = searchToken(tokenOut)[0];
-
-    if (!tokenInMatch || !tokenOutMatch) {
+    if (!proposalBody || !labels) {
       return {
-        error: `Unable to find token(s) tokenInMatch: ${tokenInMatch?.name} tokenOutMatch: ${tokenOutMatch?.name}`,
+        status: 400,
+        body: { error: "Invalid input" },
       };
     }
 
-    const [tokenInData, tokenOutData] = await Promise.all([
-      ftGetTokenMetadata(tokenInMatch.id),
-      ftGetTokenMetadata(tokenOutMatch.id),
-    ]);
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "add_proposal",
+        args: { body: proposalBody, labels, accepted_terms_and_conditions_version },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    };
 
-    if (tokenInData.id === tokenOutData.id) {
-      if (tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
-        return { error: "This endpoint does not support wrapping / unwrap NEAR directly" };
-      }
-      return { error: "TokenIn and TokenOut cannot be the same" };
+    return functionCall;
+  })
+
+  // POST /add_rfp
+  .post("/add_rfp", async ({ body }) => {
+    const { body: rfpBody, labels } = body as { body: any; labels: string[] };
+
+    if (!rfpBody || !labels) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
     }
 
-    const refEstimateSwap = (enableSmartRouting: boolean) => {
-      return estimateSwap({
-        tokenIn: tokenInData,
-        tokenOut: tokenOutData,
-        amountIn: quantity,
-        simplePools,
-        options: {
-          enableSmartRouting,
-          stablePools,
-          stablePoolsDetail,
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "add_rfp",
+        args: { body: rfpBody, labels },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    };
+
+    return functionCall;
+  })
+
+  // POST /cancel_rfp
+  .post("/cancel_rfp", async ({ body }) => {
+    const { id, proposals_to_cancel, proposals_to_unlink } = body as {
+      id?: number;
+      proposals_to_cancel: number[];
+      proposals_to_unlink: number[];
+    };
+
+    if (id === undefined || !Array.isArray(proposals_to_cancel) || !Array.isArray(proposals_to_unlink)) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
+    }
+
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "cancel_rfp",
+        args: { id, proposals_to_cancel, proposals_to_unlink },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    };
+
+    return functionCall;
+  })
+
+  // POST /create_community
+  .post("/create_community", async ({ body }) => {
+    const { inputs } = body as { inputs: any };
+
+    if (!inputs) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
+    }
+
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "create_community",
+        args: { inputs },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    };
+
+    return functionCall;
+  })
+
+  // POST /edit_member
+  .post("/edit_member", async ({ body }) => {
+    const { member, metadata } = body as { member: any; metadata: any };
+
+    if (!member || !metadata) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
+    }
+
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "edit_member",
+        args: { member, metadata },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    };
+
+    return functionCall;
+  })
+
+  // POST /edit_proposal
+  .post("/edit_proposal", async ({ body }) => {
+    const { id, body: proposalBody, labels } = body as {
+      id?: number;
+      body: any;
+      labels: string[];
+    };
+
+    if (id === undefined || !proposalBody || !labels) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
+    }
+
+    const functionCall: FunctionCallAction = {
+      type: "FunctionCall",
+      params: {
+        methodName: "edit_proposal",
+        args: { id, body: proposalBody, labels },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    };
+
+    return functionCall;
+  })
+
+  // GET /get_community
+  .get("/get_community", async ({ query }) => {
+    const { handle } = query as { handle: string };
+
+    if (!handle) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
+    }
+
+    try {
+      const response = await fetch("https://rpc.mainnet.near.org", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "dontcare",
+          method: "query",
+          params: {
+            request_type: "call_function",
+            finality: "final",
+            account_id: "devhub.near",
+            method_name: "get_community",
+            args_base64: Buffer.from(JSON.stringify({ handle })).toString("base64"),
+          },
+        }),
       });
-    };
 
-    const swapTodos: EstimateSwapView[] = await refEstimateSwap(true).catch(() => {
-      return refEstimateSwap(false); // fallback to non-smart routing if unsupported
-    });
+      const data = await response.json();
+      let deserializedResult;
 
-    const transactionsRef: Transaction[] = await instantSwap({
-      tokenIn: tokenInData,
-      tokenOut: tokenOutData,
-      amountIn: quantity,
-      swapTodos,
-      slippageTolerance: 0.03,
-      AccountId: accountId,
-      referralId: "mintbase.near",
-    });
+      if (Array.isArray(data.result.result)) {
+        deserializedResult = String.fromCharCode(...data.result.result);
+      } else {
+        deserializedResult = data.result.result;
+      }
 
-    if (tokenInData.id === WRAP_NEAR_CONTRACT_ID) {
-      transactionsRef.splice(-1, 0, nearDepositTransaction(quantity));
+      return deserializedResult;
+    } catch (error) {
+      return {
+        status: 500,
+        body: { error: "Failed to fetch community details" },
+      };
     }
-
-    if (tokenOutData.id === WRAP_NEAR_CONTRACT_ID) {
-      const outEstimate = getExpectedOutputFromSwapTodos(swapTodos, tokenOutData.id);
-
-      const routes = separateRoutes(swapTodos, tokenOutData.id);
-
-      const bigEstimate = routes.reduce((acc, cur) => {
-        const curEstimate = Big(cur[cur.length - 1].estimate);
-        return acc.add(curEstimate);
-      }, outEstimate);
-
-      const minAmountOut = percentLess(0.01, scientificNotationToString(bigEstimate.toString()));
-
-      transactionsRef.push(nearWithdrawTransaction(minAmountOut));
-    }
-
-    return transactionsRef;
   })
+
+  // GET /get_proposal
+  .get("/get_proposal", async ({ query }) => {
+    const { proposal_id } = query as { proposal_id?: number };
+
+    console.log("proposal_id", proposal_id);
+
+    if (proposal_id === undefined) {
+      return {
+        status: 400,
+        body: { error: "Invalid input" },
+      };
+    }
+
+    const bodyContent = JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "query",
+      params: {
+        request_type: "call_function",
+        finality: "final",
+        account_id: "devhub.near",
+        method_name: "get_proposal",
+        args_base64: Buffer.from(JSON.stringify({ proposal_id: Number(proposal_id) })).toString("base64"),
+      },
+    });
+
+    console.log({ body: bodyContent });
+
+    try {
+      const response = await fetch("https://rpc.mainnet.near.org", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: bodyContent,
+      });
+
+      const data = await response.json();
+      let deserializedResult;
+
+      if (Array.isArray(data.result.result)) {
+        deserializedResult = String.fromCharCode(...data.result.result);
+      } else {
+        deserializedResult = data.result.result;
+      }
+
+      return deserializedResult;
+    } catch (error) {
+      return {
+        status: 500,
+        body: { error: "Failed to fetch proposal details" },
+      };
+    }
+  })
+
+  // GET /.well-known/ai-plugin.json
+  // .get("/.well-known/ai-plugin.json", async () => {
+  //   let bitteDevJson: { url?: string };
+  //   try {
+  //     bitteDevJson = await import("./bitte.dev.json").then(module => module.default);
+  //   } catch (error) {
+  //     console.warn("Failed to import bitte.dev.json, using default values");
+  //     bitteDevJson = { url: undefined };
+  //   }
+
+  //   const openApiSpec = {
+  //     openapi: "3.0.0",
+  //     info: {
+  //       title: "Devhub NEAR Protocol API",
+  //       description: "API for interacting with Devhub operations including creating, updating and submitting proposals.",
+  //       version: "1.0.0",
+  //     },
+  //     servers: [
+  //       {
+  //         url: bitteDevJson.url || "http://localhost:8080",
+  //       },
+  //     ],
+  //     "x-mb": {
+  //       "account-id": "thomasguntenaar.near",
+  //       assistant: {
+  //         name: "Devhub Assistant",
+  //         description:
+  //           "An assistant designed to interact with the devhub.near contract on the Near Protocol.",
+  //         instructions:
+  //           "You are an assistant designed to interact with the devhub.near contract on the Near Protocol. Your main functions are:\n\n1. [List all write functions]: Use the /api/[function_name] endpoints to perform write operations. These endpoints will return valid function calls which you should be able to send. Ensure all required parameters are provided by the user as described in the paths section below.\n\n2. [List all view functions]: Use the /api/[function_name] endpoints to retrieve data from the contract.\n\nWhen performing write operations:\n- Ensure all required parameters are non-empty and of the correct type.\n- Avoid using any special characters or formatting that might cause issues with the contract.\n- If the user provides invalid input, kindly ask them to provide valid data according to the parameter specifications.\n\nWhen performing view operations:\n- Simply use the appropriate /api/[function_name] endpoint and return the result to the user.\n\nImportant: For all write operations, the endpoints will return a function call object. You should clearly indicate to the user that this is a function call that needs to be sent to the blockchain, and not the final result of the operation.",
+  //         tools: [
+  //           {
+  //             type: "generate-transaction",
+  //           },
+  //         ],
+  //       },
+  //     },
+  //     paths: {
+  //       "/api/add_member": {
+  //         post: {
+  //           tags: ["Member"],
+  //           summary: "Add a new member",
+  //           description: "This endpoint adds a new member to the community.",
+  //           operationId: "add-member",
+  //           requestBody: {
+  //             required: true,
+  //             content: {
+  //               "application/json": {
+  //                 schema: {
+  //                   type: "object",
+  //                   properties: {
+  //                     member: { type: "object" },
+  //                     metadata: { type: "object" },
+  //                   },
+  //                   required: ["member", "metadata"],
+  //                 },
+  //               },
+  //             },
+  //           },
+  //           responses: {
+  //             "200": {
+  //               description: "Successful response",
+  //               content: {
+  //                 "application/json": {
+  //                   schema: {
+  //                     type: "object",
+  //                     properties: {
+  //                       type: { type: "string" },
+  //                       params: {
+  //                         type: "object",
+  //                         properties: {
+  //                           methodName: { type: "string" },
+  //                           args: { type: "object" },
+  //                           gas: { type: "string" },
+  //                           deposit: { type: "string" },
+  //                         },
+  //                       },
+  //                     },
+  //                   },
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //       // ... (Other path specifications remain unchanged)
+  //       // Ensure all other paths from the original ai-plugin.json are included here
+  //     },
+  //   };
+
+  //   return openApiSpec;
+  // })
+
+  // GET /ping
+  .get("/ping", () => {
+    return { message: "pong" };
+  })
+  
   .compile();
 
 export const GET = app.handle;

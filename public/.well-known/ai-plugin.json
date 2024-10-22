@@ -1,74 +1,79 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Ref Finance API",
-    "description": "API for interacting with Ref Finance operations including token metadata retrieval and token swaps.",
+    "title": "Devhub NEAR Protocol API",
+    "description": "API for interacting with Devhub operations including creating, updating and submitting proposals.",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "https://ref-finance-agent.vercel.app"
-    }
-  ],
+  "servers": [{
+    "url": "http://localhost:8080"
+  }],
   "x-mb": {
-    "account-id": "mintbase.near",
+    "account-id": "thomasguntenaar.near",
     "assistant": {
-      "name": "Ref Finance Assistant",
-      "description": "Assistant for using the Ref Finance API to swap tokens and retrieve token metadata.",
-      "instructions": "You are an assistant that helps users interact with Ref Finance. You can generate swap transactions and retrieve token metadata. Generated swap transactions can be presented to the user for signing and broadcasting to the network.",
-      "tools": [
-        {
-          "type": "generate-transaction"
-        }
-      ]
+      "name": "Devhub Assistant",
+      "description": "An assistant designed to interact with the devhub.near contract on the Near Protocol.",
+      "instructions": "You are an assistant designed to interact with the devhub.near contract on the Near Protocol. Your main functions are:\n\n1. [List all write functions]: Use the /api/[function_name] endpoints to perform write operations. These endpoints will return valid function calls which you should be able to send. Ensure all required parameters are provided by the user as described in the paths section below.\n\n2. [List all view functions]: Use the /api/[function_name] endpoints to retrieve data from the contract.\n\nWhen performing write operations:\n- Ensure all required parameters are non-empty and of the correct type.\n- Avoid using any special characters or formatting that might cause issues with the contract.\n- If the user provides invalid input, kindly ask them to provide valid data according to the parameter specifications.\n\nWhen performing view operations:\n- Simply use the appropriate /api/[function_name] endpoint and return the result to the user.\n\nImportant: For all write operations, the endpoints will return a function call object. You should clearly indicate to the user that this is a function call that needs to be sent to the blockchain, and not the final result of the operation.",
+      "tools": [{
+        "type": "generate-transaction"
+      }]
     }
   },
   "paths": {
-    "/api/{token}": {
-      "get": {
-        "description": "Fetch metadata for a specific token using fuzzy search by name, symbol, or identifier.",
-        "operationId": "getTokenMetadata",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "token",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The name, symbol, or identifier of the token to search for and retrieve metadata."
+    "/api/add_member": {
+      "post": {
+        "tags": ["Member"],
+        "summary": "Add a new member",
+        "description": "This endpoint adds a new member to the community.",
+        "operationId": "add-member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "member": {
+                    "type": "object"
+                  },
+                  "metadata": {
+                    "type": "object"
+                  }
+                },
+                "required": ["member", "metadata"]
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "Token metadata retrieved successfully.",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name": {
+                    "type": {
                       "type": "string"
                     },
-                    "symbol": {
-                      "type": "string"
-                    },
-                    "decimals": {
-                      "type": "integer"
-                    },
-                    "id": {
-                      "type": "string"
-                    },
-                    "spec": {
-                      "type": "string"
-                    },
-                    "icon": {
-                      "type": "string",
-                      "format": "data-url",
-                      "description": "Base64 encoded image data for the token icon."
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
+                        }
+                      }
                     }
-                  },
-                  "required": ["name", "symbol", "decimals", "id", "spec", "icon"]
+                  }
                 }
               }
             }
@@ -76,101 +81,442 @@
         }
       }
     },
-    "/api/swap/{tokenIn}/{tokenOut}/{quantity}": {
-      "get": {
-        "summary": "Get swap transactions",
-        "description": "An array of transaction objects necessary to execute the swap, including any required preliminary actions like storage deposits.",
-        "operationId": "getSwapTransactions",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "tokenIn",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The name, symbol, or identifier of the token to input in the swap."
-          },
-          {
-            "in": "path",
-            "name": "tokenOut",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The name, symbol, or identifier of the token to output in the swap."
-          },
-          {
-            "in": "path",
-            "name": "quantity",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The amount of the input token to swap."
+    "/api/add_proposal": {
+      "post": {
+        "tags": ["Proposal"],
+        "summary": "Add a new proposal",
+        "description": "This endpoint adds a new proposal to the community.",
+        "operationId": "add-proposal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "object"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "accepted_terms_and_conditions_version": {
+                    "type": "integer"
+                  }
+                },
+                "required": ["body", "labels"]
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "Swap transactions generated successfully.",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "receiverId": {
-                        "type": "string",
-                        "description": "The account ID of the contract that will receive the transaction."
-                      },
-                      "functionCalls": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "methodName": {
-                              "type": "string",
-                              "description": "The name of the method to be called on the contract."
-                            },
-                            "args": {
-                              "type": "object",
-                              "description": "Arguments for the function call.",
-                              "properties": {
-                                "registration_only": {
-                                  "type": "boolean"
-                                },
-                                "account_id": {
-                                  "type": "string"
-                                },
-                                "receiver_id": {
-                                  "type": "string"
-                                },
-                                "amount": {
-                                  "type": "string"
-                                },
-                                "msg": {
-                                  "type": "string",
-                                  "description": "A JSON string containing swap actions and parameters.  Shows minimum amount of tokens to receive."
-                                }
-                              },
-                              "additionalProperties": true
-                            },
-                            "gas": {
-                              "type": "string",
-                              "description": "The amount of gas to attach to the transaction, in yoctoNEAR."
-                            },
-                            "amount": {
-                              "type": "string",
-                              "description": "The amount of NEAR tokens to attach to the transaction, in yoctoNEAR."
-                            }
-                          },
-                          "required": ["methodName", "args", "gas", "amount"]
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
                         }
                       }
-                    },
-                    "required": ["receiverId", "functionCalls"]
+                    }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/add_rfp": {
+      "post": {
+        "tags": ["RFP"],
+        "summary": "Add a new RFP",
+        "description": "This endpoint adds a new RFP to the community.",
+        "operationId": "add-rfp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "object"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["body", "labels"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cancel_rfp": {
+      "post": {
+        "tags": ["RFP"],
+        "summary": "Cancel an RFP",
+        "description": "This endpoint cancels an existing RFP.",
+        "operationId": "cancel-rfp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "proposals_to_cancel": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "proposals_to_unlink": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": ["id", "proposals_to_cancel", "proposals_to_unlink"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/create_community": {
+      "post": {
+        "tags": ["Community"],
+        "summary": "Create a new community",
+        "description": "This endpoint creates a new community.",
+        "operationId": "create-community",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inputs": {
+                    "type": "object"
+                  }
+                },
+                "required": ["inputs"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/edit_member": {
+      "post": {
+        "tags": ["Member"],
+        "summary": "Edit an existing member",
+        "description": "This endpoint edits an existing member in the community.",
+        "operationId": "edit-member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "member": {
+                    "type": "object"
+                  },
+                  "metadata": {
+                    "type": "object"
+                  }
+                },
+                "required": ["member", "metadata"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/edit_proposal": {
+      "post": {
+        "tags": ["Proposal"],
+        "summary": "Edit an existing proposal",
+        "description": "This endpoint edits an existing proposal in the community.",
+        "operationId": "edit-proposal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "body": {
+                    "type": "object"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["id", "body", "labels"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "properties": {
+                        "methodName": {
+                          "type": "string"
+                        },
+                        "args": {
+                          "type": "object"
+                        },
+                        "gas": {
+                          "type": "string"
+                        },
+                        "deposit": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/get_community": {
+      "get": {
+        "tags": ["Community"],
+        "summary": "Get community details",
+        "description": "This endpoint retrieves details of a community.",
+        "operationId": "get-community",
+        "parameters": [{
+          "name": "handle",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/get_proposal": {
+      "get": {
+        "tags": ["Proposal"],
+        "summary": "Get proposal details",
+        "description": "This endpoint retrieves details of a proposal.",
+        "operationId": "get-proposal",
+        "parameters": [{
+          "name": "proposal_id",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "number"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }

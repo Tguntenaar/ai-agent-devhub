@@ -3,9 +3,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="flex flex-col p-2">
-      <h1 className="text-3xl font-bold">
-        Ref Finance Agent
-      </h1>
+      <h1 className="text-3xl font-bold">Devhub Agent</h1>
       <ul>
         <li>
           <a
@@ -17,18 +15,14 @@ export default function Home() {
           </a>
         </li>
         <li>
-          <Link href="/.well-known/ai-plugin.json">
-            OpenAPI Spec
-          </Link>
+          <Link href="/.well-known/ai-plugin.json">OpenAPI Spec</Link>
         </li>
         <li>
-          <Link href="/api/swagger">
-            Swagger
-          </Link>
+          <Link href="/api/swagger">Swagger</Link>
         </li>
         <li>
           <a
-            href="https://github.com/Mintbase/ref-finance-agent-next"
+            href="https://github.com/Tguntenaar/ai-agent-devhub"
             target="_blank"
             rel="noreferrer"
           >
