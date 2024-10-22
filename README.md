@@ -1,4 +1,4 @@
-# Devhub Agent
+# Devhub Assistant - A Bitte Agent
 
 <img src="https://github.com/user-attachments/assets/aa54bac4-30ef-49bb-bac7-732ff561bd95" alt="cover_image" width="0"/>
 
@@ -14,28 +14,47 @@ Built using Next.js 14 + Elysia.
 
 ## Project Walkthrough
 
-Devhub Agent facilitates the development of AI-powered DeFi swap agents. The template supports creating, managing, and deploying DeFi swap functionalities. [Build your own agent](https://docs.mintbase.xyz/ai/assistant-plugins)
+Devhub Assistant facilitates the tracking of work through simple interface of AI-powered agents.  [Build your own agent](https://docs.mintbase.xyz/ai/assistant-plugins)
 
 #### API Base URL
 
-https://ref-finance-agent.vercel.app
+https://ai-agent-devhub.vercel.app
 
 #### Endpoints
 
-- Token Metadata `GET` `/api/token/{token}`
+- Add Member `POST` `/api/add_member`
 
-- Swap Transactions `GET` `/api/swap/{tokenIn}/{tokenOut}/{quantity}`
+- Add Proposal `POST` `/api/add_proposal`
+
+- Add RFP `POST` `/api/add_rfp`
+
+- Cancel RFP `POST` `/api/cancel_rfp`
+
+- Create Community `POST` `/api/create_community`
+
+- Edit Member `POST` `/api/edit_member`
+
+- Edit Proposal `POST` `/api/edit_proposal`
+
+- Get Community `GET` `/api/get_community`
+
+- Get Proposal `GET` `/api/get_proposal`
+
+- Ping `GET` `/api/ping`
 
 #### Usage
+
+
 Make LLM requests to the endpoints above. Refer to the full API documentation for detailed parameter and response information.
+```bash
+npx make-agent dev --port 3000
+```
 
-
-## Getting Started
-[Docs to integrate](https://docs.mintbase.xyz/ai/assistant-plugins)  
 
 ### Installation
 
 Set `NEAR_ENV="mainnet"` in your `.env.local` file.
+Set your Bitte API key
 
 ```bash
 # install dependencies
@@ -45,8 +64,6 @@ pnpm i
 pnpm dev
 ```
 
-## Demo
-https://github.com/Mintbase/ref-finance-agent-next/assets/838839/3291eaf9-aa79-4c95-8c5f-673a6d72dc96
 
 ## Deploy on Vercel
 
