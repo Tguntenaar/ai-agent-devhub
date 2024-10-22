@@ -16,6 +16,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
   .use(swagger())
   
   // POST /add_member
+  // TODO: metadata is too abstract we need to make it more specific to be useful.
   .post("/add_member", async ({ body }) => {
     const { member, metadata } = body as { member: any; metadata: any };
 
@@ -119,7 +120,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
     return functionCall;
   })
 
-  // POST /create_community
+  // POST /create_community Make sure to spend 4 NEAR to create a community
   .post("/create_community", async ({ body }) => {
     const { inputs } = body as { inputs: any };
 
@@ -144,6 +145,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
   })
 
   // POST /edit_member
+  // TODO: metadata is too abstract we need to simplify it for the agent.
   .post("/edit_member", async ({ body }) => {
     const { member, metadata } = body as { member: any; metadata: any };
 
@@ -195,6 +197,12 @@ const app = new Elysia({ prefix: "/api", aot: false })
     return functionCall;
   })
 
+  // TODO: .post("/update_proposal", async ({body}) => {
+    // Get the proposal the user wants to update. By getting the latest from an author.
+    // Then get the body and add the newly added work to the body.
+    // Then return the updated proposal.
+  // })
+
   // GET /get_community
   .get("/get_community", async ({ query }) => {
     const { handle } = query as { handle: string };
@@ -243,7 +251,15 @@ const app = new Elysia({ prefix: "/api", aot: false })
       };
     }
   })
-
+  // TODO: .get("/get_community_information", asyn ({}) => {
+  //   // Get all community handles.
+  //   // Then match the handle to the query.
+  //   // Then return the community information.
+  // })
+  // TODO: .get("/get_proposal_information", async({}) => {
+  //   // Use the query to find the proposal
+  //   // If we have the rust API with search and everything we can use that to not make a call to the RPC directly but search for the proposals of a author for instance.
+  //  })
   // GET /get_proposal
   .get("/get_proposal", async ({ query }) => {
     const { proposal_id } = query as { proposal_id?: number };
@@ -298,105 +314,10 @@ const app = new Elysia({ prefix: "/api", aot: false })
       };
     }
   })
-
-  // GET /.well-known/ai-plugin.json
-  // .get("/.well-known/ai-plugin.json", async () => {
-  //   let bitteDevJson: { url?: string };
-  //   try {
-  //     bitteDevJson = await import("./bitte.dev.json").then(module => module.default);
-  //   } catch (error) {
-  //     console.warn("Failed to import bitte.dev.json, using default values");
-  //     bitteDevJson = { url: undefined };
-  //   }
-
-  //   const openApiSpec = {
-  //     openapi: "3.0.0",
-  //     info: {
-  //       title: "Devhub NEAR Protocol API",
-  //       description: "API for interacting with Devhub operations including creating, updating and submitting proposals.",
-  //       version: "1.0.0",
-  //     },
-  //     servers: [
-  //       {
-  //         url: bitteDevJson.url || "http://localhost:8080",
-  //       },
-  //     ],
-  //     "x-mb": {
-  //       "account-id": "thomasguntenaar.near",
-  //       assistant: {
-  //         name: "Devhub Assistant",
-  //         description:
-  //           "An assistant designed to interact with the devhub.near contract on the Near Protocol.",
-  //         instructions:
-  //           "You are an assistant designed to interact with the devhub.near contract on the Near Protocol. Your main functions are:\n\n1. [List all write functions]: Use the /api/[function_name] endpoints to perform write operations. These endpoints will return valid function calls which you should be able to send. Ensure all required parameters are provided by the user as described in the paths section below.\n\n2. [List all view functions]: Use the /api/[function_name] endpoints to retrieve data from the contract.\n\nWhen performing write operations:\n- Ensure all required parameters are non-empty and of the correct type.\n- Avoid using any special characters or formatting that might cause issues with the contract.\n- If the user provides invalid input, kindly ask them to provide valid data according to the parameter specifications.\n\nWhen performing view operations:\n- Simply use the appropriate /api/[function_name] endpoint and return the result to the user.\n\nImportant: For all write operations, the endpoints will return a function call object. You should clearly indicate to the user that this is a function call that needs to be sent to the blockchain, and not the final result of the operation.",
-  //         tools: [
-  //           {
-  //             type: "generate-transaction",
-  //           },
-  //         ],
-  //       },
-  //     },
-  //     paths: {
-  //       "/api/add_member": {
-  //         post: {
-  //           tags: ["Member"],
-  //           summary: "Add a new member",
-  //           description: "This endpoint adds a new member to the community.",
-  //           operationId: "add-member",
-  //           requestBody: {
-  //             required: true,
-  //             content: {
-  //               "application/json": {
-  //                 schema: {
-  //                   type: "object",
-  //                   properties: {
-  //                     member: { type: "object" },
-  //                     metadata: { type: "object" },
-  //                   },
-  //                   required: ["member", "metadata"],
-  //                 },
-  //               },
-  //             },
-  //           },
-  //           responses: {
-  //             "200": {
-  //               description: "Successful response",
-  //               content: {
-  //                 "application/json": {
-  //                   schema: {
-  //                     type: "object",
-  //                     properties: {
-  //                       type: { type: "string" },
-  //                       params: {
-  //                         type: "object",
-  //                         properties: {
-  //                           methodName: { type: "string" },
-  //                           args: { type: "object" },
-  //                           gas: { type: "string" },
-  //                           deposit: { type: "string" },
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //       // ... (Other path specifications remain unchanged)
-  //       // Ensure all other paths from the original ai-plugin.json are included here
-  //     },
-  //   };
-
-  //   return openApiSpec;
-  // })
-
   // GET /ping
   .get("/ping", () => {
     return { message: "pong" };
   })
-  
   .compile();
 
 export const GET = app.handle;
