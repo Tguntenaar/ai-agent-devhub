@@ -6,7 +6,7 @@
     "version": "1.0.0"
   },
   "servers": [{
-    "url": "http://localhost:8080"
+    "url": "https://ai-agent-devhub.vercel.app/"
   }],
   "x-mb": {
     "account-id": "thomasguntenaar.near",
