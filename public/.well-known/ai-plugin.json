@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Devhub NEAR Protocol API",
+    "title": "NEAR Devhub Agent API",
     "description": "API for interacting with Devhub operations including creating, updating and submitting proposals.",
     "version": "1.0.0"
   },
