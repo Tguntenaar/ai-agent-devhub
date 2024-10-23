@@ -94,8 +94,32 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "body": {
-                    "type": "object"
+                  "title": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": ["DevDAO Operations",
+                      "DevDAO Platform",
+                      "Events & Hackathons",
+                      "Engagement & Awareness",
+                      "Decentralized DevRel",
+                      "Universities & Bootcamps",
+                      "Tooling & Infrastructure",
+                      "Other"
+                    ]
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "linked_proposals": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
                   },
                   "labels": {
                     "type": "array",
@@ -103,11 +127,33 @@
                       "type": "string"
                     }
                   },
-                  "accepted_terms_and_conditions_version": {
-                    "type": "integer"
+                  "amount": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "receiver_account": {
+                    "type": "string"
+                  },
+                  "requested_sponsor": {
+                    "type": "string"
+                  },
+                  "supervisor": {
+                    "type": "string"
+                  },
+                  "timeline": {
+                    "type": "string",
+                    "enum": ["DRAFT", "REVIEW"]
+                  },
+                  "linked_rfp": {
+                    "type": "number"
+                  },
+                  "accepted_terms": {
+                    "type": "boolean"
                   }
                 },
-                "required": ["body", "labels"]
+                "required": ["title", "category", "summary", "description", "linked_proposals", "labels", "amount", "currency", "receiver_account", "requested_sponsor", "supervisor", "timeline"]
               }
             }
           }
@@ -500,7 +546,7 @@
       "get": {
         "tags": ["Proposal"],
         "summary": "Get proposal details",
-        "description": "This endpoint retrieves details of a proposal.",
+        "description": "This endpoint retrieves details of a proposal based on the proposal id.",
         "operationId": "get-proposal",
         "parameters": [{
           "name": "proposal_id",

@@ -1,16 +1,7 @@
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
-
-
-interface FunctionCallAction {
-  type: "FunctionCall";
-  params: {
-    methodName: string;
-    args: object;
-    gas: string;
-    deposit: string;
-  };
-}
+import { FunctionCallAction } from "@/utils/types";
+import { handleAddProposal } from "@/proposal/addProposal";
 
 const app = new Elysia({ prefix: "/api", aot: false })
   .use(swagger())
@@ -41,32 +32,7 @@ const app = new Elysia({ prefix: "/api", aot: false })
   })
 
   // POST /add_proposal
-  .post("/add_proposal", async ({ body }) => {
-    const { body: proposalBody, labels, accepted_terms_and_conditions_version } = body as {
-      body: any;
-      labels: string[];
-      accepted_terms_and_conditions_version?: number;
-    };
-
-    if (!proposalBody || !labels) {
-      return {
-        status: 400,
-        body: { error: "Invalid input" },
-      };
-    }
-
-    const functionCall: FunctionCallAction = {
-      type: "FunctionCall",
-      params: {
-        methodName: "add_proposal",
-        args: { body: proposalBody, labels, accepted_terms_and_conditions_version },
-        gas: "30000000000000",
-        deposit: "1",
-      },
-    };
-
-    return functionCall;
-  })
+  .post('/add_proposal', handleAddProposal)
 
   // POST /add_rfp
   .post("/add_rfp", async ({ body }) => {
