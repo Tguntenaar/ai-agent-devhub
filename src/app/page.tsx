@@ -11,12 +11,22 @@ export default function Home() {
           <ul className="space-y-6">
             <li>
               <a
-                href="https://docs.mintbase.xyz/ai/mintbase-plugins"
+                href="https://docs.bitte.ai/agents/quick-start"
+                target="_blank"
+                rel="noreferrer"
+                className="block text-center py-3 px-6 bg-red-400 text-white rounded-lg font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-300"
+              >
+                Docs
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://wallet.bitte.ai/"
                 target="_blank"
                 rel="noreferrer"
                 className="block text-center py-3 px-6 bg-blue-400 text-white rounded-lg font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-300"
               >
-                Docs
+                Wallet
               </a>
             </li>
             <li>
